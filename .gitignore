@@ -1,0 +1,9 @@
+*__pycache__
+*.venv
+*.pptx
+*.log
+*.rdb
+*.DS_Store
+*cache
+*helm*
+*.vscode

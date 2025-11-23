@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+pydantic
+langchain
+langgraph
+langchain_core
+langchain_ollama
+langchain_openai
+duckdb
+pandas
+numpy
+python-multipart
