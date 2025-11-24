@@ -11,7 +11,7 @@
 * Local LLM serving
 
 ## 📸 Architecture Overview
-Multi-Agent Swarm |
+Pipeline Overview |
 :-------------------------:
 <img src="assets/ArchitectureDiagram.png" style="display: block; margin-left: auto; margin-right: auto; max-width: 75%; height: auto;" >
 
@@ -23,7 +23,7 @@ Frontend Interface |
 :-------------------------:
 <img src="assets/Frontend.png" style="display: block; margin-left: auto; margin-right: auto; max-width: 75%; height: auto;" >
 
-## Agents included:
+## Agents task:
 * supervisor → Supervisor agent routing between workers
 * data_processing → Load the data and process 
 * resolve_query → Natural language → SQL
@@ -66,8 +66,7 @@ The Streamlit sidebar allows you to:
 * Automatically reload the chatbot with the new dataset
 
 Others
-* Changing the LLM model
-* In backend/backend.py:
+* Changing the LLM model in backend/backend.py:
 ```bash
 supervisor_llm = ChatOllama(model="deepseek-r1:8b", temperature=0.0)
 agent_llm = ChatOllama(model="deepseek-r1:8b", temperature=0.0)
