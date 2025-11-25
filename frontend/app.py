@@ -1,4 +1,6 @@
-import os
+import os, sys
+parent_dir = os.path.abspath(os.path.join(__file__, "../.."))
+sys.path.insert(0, parent_dir)  # add repo entrypoint to python path
 import uuid
 import streamlit as st
 import requests

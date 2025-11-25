@@ -97,13 +97,13 @@ def supervisor_node(state: GraphState) -> Command[
     messages = [
         SystemMessage(content=system_prompt),
         # HumanMessage(content=f"user_query: {state.get('user_query')}"),
+        *state.get("messages", []),
         HumanMessage(content=f"file_path: {state.get('file_path')}"),
         HumanMessage(content=f"context_data: {state.get('context_data')}"),
         HumanMessage(content=f"resolved_query: {state.get('resolved_query')}"),
         HumanMessage(content=f"extracted_data: {state.get('extracted_data')}"),
         # HumanMessage(content=f"summarized_answer: {state.get('summarized_answer')}"),
         # HumanMessage(content=f"worker_history: {state.get('worker_history')}")
-        *state.get("messages", []),
     ]
 
     # Invoke supervisor LLM to decide next worker
@@ -196,7 +196,7 @@ def resolve_query(state: GraphState):
 
     if context_data is None:
         sql = "No context data available"
-        print("[resolve_query] No context data.")
+        msg = "[resolve_query] No context data."
 
     else:
         columns = list(context_data.columns)
@@ -220,8 +220,9 @@ def resolve_query(state: GraphState):
         # Invoke chain/LLM
         # sql = chain.invoke({"context_data": context_data}).content
         sql = agent_llm.invoke(prompt).content
-
-        print("[resolve_query] SQL generated:\n", sql)
+        msg = "[resolve_query] SQL generated:\n", sql
+    
+    print(msg)
 
     return Command(
         update={
