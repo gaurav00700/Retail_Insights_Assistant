@@ -165,7 +165,7 @@ if user_input:
         response = requests.post(
             url= f"{BACKEND_API}/chat",
             json= {
-                "query": user_input,
+                "user_query": user_input,
                 "thread_id": st.session_state["thread_id"],
                 "file_path": st.session_state["file_path"]
                 },

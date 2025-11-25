@@ -17,9 +17,9 @@ app = FastAPI()
 # ----------------------------------------------------------------
 # Define the schema
 class ChatPayload(BaseModel):
-    user_query: str = Field(description="User input question")
-    file_path: str = Field(description="Path of the context file")
-    thread_id: str = Field(description="Unique id foreach thread")
+    user_query: str = Field(..., description="User input question")
+    file_path: str | None = Field(..., description="Path of the context file")
+    thread_id: str = Field(..., description="Unique id foreach thread")
 
 @app.get("/")
 async def Welcome():
@@ -28,17 +28,17 @@ async def Welcome():
     return{"message": "Welcome of Chatbot API"}
 
 @app.post("/chat")
-async def chat_endpoint(request: Request):
+async def chat_endpoint(request: ChatPayload):
     """Chat API"""
 
     # Get Payload
-    body = await request.json()
-    user_query = body.get("query")
-    thread_id = body.get("thread_id", "default")
-    file_path = body.get("file_path")
-    # user_query = request.user_query
-    # thread_id = request.thread_id
-    # file_path = request.file_path
+    # body = await request.json()
+    # user_query = body.get("query")
+    # thread_id = body.get("thread_id", "default")
+    # file_path = body.get("file_path")
+    user_query = request.user_query
+    thread_id = request.thread_id
+    file_path = request.file_path
 
     # Prepare workflow state
     workflow_state = {
