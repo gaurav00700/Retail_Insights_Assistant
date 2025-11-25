@@ -1,4 +1,6 @@
-import os
+import os, sys
+parent_dir = os.path.abspath(os.path.join(__file__, "../.."))
+sys.path.insert(0, parent_dir)  # add repo entrypoint to python path
 from pydantic import BaseModel, Field
 import operator
 import pandas as pd
@@ -170,7 +172,7 @@ def data_processing(state: GraphState):
     # Unsupported format
     else:
         context_data = None
-        msg = f"Unsupported file format for path: {file_path}"
+        msg = f"[data_processing] Unsupported file format for path: {file_path}"
     
     # Print status
     print(msg)
