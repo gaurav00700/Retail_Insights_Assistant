@@ -3,12 +3,13 @@ import uuid
 import streamlit as st
 import requests
 from langchain_core.messages import HumanMessage, AIMessage
-from backend.backend import chatbot, CSV_PATH   # Your workflow + default CSV path
+# from backend.backend import chatbot, CSV_PATH
+# print(f"Current Path is: {os.getcwd()}")
 
 # ============================================================
 # Environment variables
 # ============================================================
-API_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
+BACKEND_API = os.getenv("BACKEND_URL", "http://localhost:8000")
 
 # ============================================================
 # Utilities
@@ -18,13 +19,19 @@ def generate_thread_id():
     """generating unique id"""
     return str(uuid.uuid4())
 
-def reset_chat():
-    """Resetting the graph state"""
+def reset_chat(clear_file: bool = True):
+    """Reset chatbot + optionally clear uploaded file widget."""
 
+    if clear_file:
+        st.session_state["file_path"] = None
+
+    # reset thread + messages
     st.session_state["thread_id"] = generate_thread_id()
     st.session_state["message_history"] = []
+
+    # Reset Session state
     st.session_state["chatbot_state"] = {
-        "file_path": st.session_state.get("custom_file_path", CSV_PATH),
+        "file_path": st.session_state.get("file_path"),
         "messages": [],
         "context_data": None,
         "resolved_query": "",
@@ -40,8 +47,11 @@ def reset_chat():
 # ============================================================
 # Session Initialization
 # ============================================================
-if "custom_file_path" not in st.session_state:
-    st.session_state["custom_file_path"] = CSV_PATH
+if "file_uploader_key" not in st.session_state:
+    st.session_state["file_uploader_key"] = 0
+
+if "file_path" not in st.session_state:
+    st.session_state["file_path"] = None
 
 if "thread_id" not in st.session_state:
     st.session_state["thread_id"] = generate_thread_id()
@@ -57,42 +67,57 @@ if "chatbot_state" not in st.session_state:
 # ============================================================
 st.sidebar.title("Settings")
 st.sidebar.markdown(f"**Thread ID:** `{st.session_state['thread_id']}`")
-st.sidebar.markdown(f"**Current file path:**`{st.session_state['custom_file_path']}`")
+st.sidebar.markdown(f"**Current file path:**`{st.session_state['file_path']}`")
 
 st.sidebar.subheader("📂 Dataset Source")
 
-# Show current file path
-
 # Manual text input to change CSV path
-new_path = st.sidebar.text_input(
-    "Enter file path:",
-    value=st.session_state["custom_file_path"]
-)
-
-# CSV upload
-# uploaded_file = st.sidebar.file_uploader("Upload a file", type=["csv", "xls", "json", "txt"])
-
-# if uploaded_file:
-#     # Save uploaded CSV to a temporary location
-#     temp_path = f"/tmp/{uploaded_file.name}"
-#     with open(temp_path, "wb") as f:
-#         f.write(uploaded_file.getbuffer())
-
-#     st.session_state["custom_file_path"] = temp_path
-#     st.sidebar.success(f"Uploaded CSV saved as:\n`{temp_path}`")
-#     reset_chat()
-#     st.rerun()
+# new_path = st.sidebar.text_input(
+#     "Enter file path:",
+#     value=st.session_state["file_path"]
+# )
 
 # Manual path update button
-if st.sidebar.button("Update file Path", use_container_width=True):
-    st.session_state["custom_file_path"] = new_path
-    reset_chat()
-    st.sidebar.success("File path updated!")
-    st.rerun()
+# if st.sidebar.button("Update file Path", use_container_width=True):
+#     st.session_state["file_path"] = new_path
+#     reset_chat()
+#     st.sidebar.success("File path updated!")
+#     st.rerun()
+
+# Upload files and handle it
+uploaded_file = st.sidebar.file_uploader(
+    "Upload a file",
+    type=["csv", "xls", "json", "txt"],
+    accept_multiple_files=False,
+    key=st.session_state["file_uploader_key"]
+)
+
+if uploaded_file:
+    filename = uploaded_file.name   # file name
+    temp_path = f"data/temp/{filename}" # dire name
+    os.makedirs(os.path.dirname(temp_path), exist_ok=True) # Create directory 
+
+    # Process only if new file uploaded
+    if st.session_state.get("file_path") != temp_path:
+
+        # Save file
+        with open(temp_path, "wb") as f:
+            f.write(uploaded_file.getbuffer())
+
+        st.session_state["file_path"] = temp_path
+        st.sidebar.success(f"File saved as: `{temp_path}`")
+
+        # Reset chat but NOT the uploader
+        # reset_chat(clear_file=False)
+
+        st.rerun()
 
 # New chat button
 if st.sidebar.button("🆕 New Chat", use_container_width=True):
-    reset_chat()
+    # Increment key to reset the file_uploader widget
+    st.session_state["file_uploader_key"] += 1
+
+    reset_chat(clear_file=True)
     st.rerun()
 
 # ============================================================
@@ -119,7 +144,7 @@ if user_input:
     # Get workflow state
     chatbot_state = st.session_state["chatbot_state"]
     chatbot_state["user_query"] = user_input
-    chatbot_state["file_path"] = st.session_state["custom_file_path"]
+    chatbot_state["file_path"] = st.session_state["file_path"]
 
     # Streaming config
     CONFIG = {
@@ -131,18 +156,18 @@ if user_input:
     # Streaming block
     with st.chat_message("assistant"):
         stream_box = st.empty()
-        stream_box.markdown("⏳ Processing…")
+        stream_box.markdown("⏳ Thinking…")
 
         streamed_text = ""
         first_token = False
 
         # Option 1: Generating response through API call 
         response = requests.post(
-            url= f"{API_URL}/chat",
+            url= f"{BACKEND_API}/chat",
             json= {
                 "query": user_input,
                 "thread_id": st.session_state["thread_id"],
-                "file_path": st.session_state["custom_file_path"]
+                "file_path": st.session_state["file_path"]
                 },
             stream= True
             )
@@ -203,4 +228,4 @@ st.divider()
 st.caption("💡 Powered by LangGraph + Multi-Agent Reasoning + DuckDB SQL")
 
 
-# To Run: streamlit run frontend.py
+# To Run: streamlit run frontend/app.py

@@ -1,20 +1,33 @@
-version: "3.9"
+name: Multi-Agent-chatbot
 
 services:
 
+  # Backend 
   backend:
-    build: ./backend
+    build: 
+      context: .    # Path relative to docker-compose
+      dockerfile: ./backend/Dockerfile  # Dockerfile path 
     container_name: chatbot-backend
+    restart: unless-stopped # Options: always, unless-stopped, on-failure, never
+    volumes:
+      - ./data:/workdir/data
     ports:
       - "8000:8000"
     environment:
-      - OLLAMA_HOST=http://host.docker.internal:11434
+      - OLLAMA_HOST=http://172.31.114.42:11434  # IP of LLM (must be accessible to the container network)
+      # - OLLAMA_HOST=http://localhost:11434
     networks:
       - chatbot-net
 
+  # Frontend  
   frontend:
-    build: ./frontend
+    build: 
+      context: .   # Path relative to docker-compose
+      dockerfile: ./frontend/Dockerfile  # Dockerfile path
     container_name: chatbot-frontend
+    restart: unless-stopped # Options: always, unless-stopped, on-failure, never
+    volumes:
+      - ./data:/workdir/data
     ports:
       - "8501:8501"
     depends_on:
@@ -26,4 +39,9 @@ services:
 
 networks:
   chatbot-net:
+    name: chatbot-network
     driver: bridge
+
+# volumes:
+  # llm-vol:
+  #   driver: local

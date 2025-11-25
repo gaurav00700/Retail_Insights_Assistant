@@ -4,7 +4,7 @@ import operator
 import pandas as pd
 import duckdb
 from typing import Dict, TypedDict, Literal, Annotated, Optional, Sequence, Type, Union, List, Any
-from IPython.display import Image, display
+# from IPython.display import Image, display
 
 # LangChain / LangGraph
 from langchain_ollama import ChatOllama

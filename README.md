@@ -52,7 +52,7 @@ retail-insights/
 ## 🚀 Run the application (Docker Compose)
 Run the pipeline with following command
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
 Access the services:

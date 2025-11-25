@@ -1,21 +1,21 @@
-FROM python:3.11-slim
+FROM python:3.12-slim
 
 # Install system dependencies
 # RUN apt-get update && apt-get install -y \
 #     build-essential \
 #     wget \
-#     curl \
-#     && rm -rf /var/lib/apt/lists/*
+# curl 
+# && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
+COPY ./backend /workdir/backend
 
-COPY requirements.txt .
+WORKDIR /workdir
 
-RUN pip install --no-cache-dir -r requirements.txt
+# COPY requirements.txt .
 
-COPY . .
+RUN pip install -r ./backend/requirements.txt
 
 # Expose backend port
 EXPOSE 8000
 
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "backend.app:app", "--host", "0.0.0.0", "--port", "8000"]
