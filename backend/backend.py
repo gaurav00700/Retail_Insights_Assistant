@@ -26,11 +26,6 @@ summary_llm = ChatOllama(model="deepseek-r1:8b", temperature=0.0)
 conv_llm = ChatOllama(model="deepseek-r1:8b", temperature=0.7)
 
 # ============================================================
-# CSV path
-# ============================================================
-CSV_PATH = "data/in/Sales Dataset/Sale Report.csv"
-
-# ============================================================
 # PDF retriever store (per thread)
 # ============================================================
 _THREAD_RETRIEVERS: Dict[str, Any] = {}
@@ -385,19 +380,10 @@ def thread_document_metadata(thread_id: str) -> dict:
 # ============================================================
 # CONVERSATION LOOP
 # ============================================================
-def run_conversation(config: dict):
+def run_conversation(initial_state: dict, config: dict):
     """conversation loop to ask questions interactively"""
 
     print("Type 'exit/quit/bye' to quit.\n")
-
-    initial_state = {
-        "file_path": CSV_PATH,
-        "messages": [],
-        "resolve_history": [],
-        "extract_history": [],
-        "summarized_history": [],
-        "worker_history": [],
-        }
 
     while True:
         query = input("User👨‍💼: ").strip()
@@ -425,6 +411,19 @@ def run_conversation(config: dict):
         print("-----------------\n")
 
 if __name__ == "__main__":
-    # Run
-    config1 = {"configurable": {"thread_id": "1"}}
-    run_conversation(config=config1)
+    
+    # Initialize the variables
+    CSV_PATH = "data/in/Sales Dataset/Sale Report.csv"
+    initial_state = {
+        "file_path": CSV_PATH,
+        "messages": [],
+        "resolve_history": [],
+        "extract_history": [],
+        "summarized_history": [],
+        "worker_history": [],
+        }
+    
+    config = {"configurable": {"thread_id": "1"}}
+    
+    # Run the loop
+    run_conversation(initial_state, config)

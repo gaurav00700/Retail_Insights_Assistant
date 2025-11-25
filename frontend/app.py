@@ -3,8 +3,10 @@ import uuid
 import streamlit as st
 import requests
 from langchain_core.messages import HumanMessage, AIMessage
-# from backend.backend import chatbot, CSV_PATH
-# print(f"Current Path is: {os.getcwd()}")
+try: 
+    from backend.backend import chatbot 
+except: 
+    pass
 
 # ============================================================
 # Environment variables
@@ -226,6 +228,5 @@ if user_input:
 
 st.divider()
 st.caption("💡 Powered by LangGraph + Multi-Agent Reasoning + DuckDB SQL")
-
 
 # To Run: streamlit run frontend/app.py

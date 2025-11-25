@@ -15,7 +15,6 @@ services:
       - "8000:8000"
     environment:
       - OLLAMA_HOST=http://172.31.114.42:11434  # IP of LLM (must be accessible to the container network)
-      # - OLLAMA_HOST=http://localhost:11434
     networks:
       - chatbot-net
 
